@@ -86,6 +86,7 @@ class Translator:
             if self.number["unit"] != 0: self.err = f"Ошибка. Неверный порядок ввода"
         elif self.in_units(err):
             if self.number["unit"] != 0: self.err = f"Ошибка. Единицы уже введены"
+            if self.number["ten"] != 0: self.err = f"Ошибка. Единицы должны быть \nв диапазоне от 0 до 9"
         else: self.err = ""
 
     def check_numbers(self, slovo):
@@ -96,19 +97,21 @@ class Translator:
 
         self.number = {"hundred" : 0, "ten" : 0, "unit" : 0}
         for i in range(len(words)):
-            if self.in_hundreds(words[i]) and self.number["hundred"] == 0:
+            if self.in_hundreds(words[i]) and self.number["hundred"] == 0 and self.number["ten"] == 0 and self.number["unit"] == 0:
                 self.number["hundred"] = self.hundreds[words[i]]
             
-            elif self.in_tens(words[i]) and self.number["ten"] == 0:
+            elif self.in_tens(words[i]) and self.number["ten"] == 0 and self.number["unit"] == 0:
                 self.number["ten"] = self.tens[words[i]]  
 
             elif self.in_units(words[i]) and self.number["unit"] == 0:
+                
                 if self.number["ten"] == 70 or self.number["ten"] == 90:
                     if not self.units[words[i]] in range (11, 20): 
                         self.err = "После 70 и 90\nдопускаются только числа\nот 11 до 19"
                     else: self.number["unit"] = self.units[words[i]] - 10
-                else: self.number["unit"] = self.units[words[i]]
-            
+                else: 
+                    if self.units[words[i]] in range (0, 10):self.number["unit"] = self.units[words[i]]
+                    else: self.rise_error(words[i])
             else: self.rise_error(words[i])
 
         print(self.number["hundred"], self.number["ten"], self.number["unit"])
