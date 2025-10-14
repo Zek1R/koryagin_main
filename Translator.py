@@ -17,8 +17,7 @@ class Translator:
                          "huit-cent" : 800,
                          "neuf-cent" : 900}
         
-        self.tens = {"dix" : 10,
-                     "vingt" : 20,
+        self.tens = {"vingt" : 20,
                      "trente" : 30,
                      "quarante" : 40,
                      "cinquante" : 50,
@@ -38,6 +37,7 @@ class Translator:
                       "sept" : 7,
                       "huit" : 8,
                       "neuf" : 9,
+                      "dix" : 10,
                       "onze" : 11,
                       "etonze" : 11,
                       "douze" : 12,
@@ -53,7 +53,6 @@ class Translator:
 
         self.err = ""
         
-        
     
     def validation(self, slovo):
         print(slovo)
@@ -61,7 +60,7 @@ class Translator:
         for i in slovo:
             if i not in self.alphabet:
                 self.err = f"Неверный символ {i}"
-                return 0
+                return self.number_sum()
         return self.check_numbers(slovo)
     
 
@@ -78,18 +77,6 @@ class Translator:
         return False
 
 
-    def raise_error(self, err):
-        if self.in_hundreds(err):
-            if self.number["hundred"] != 0: self.err = f"Ошибка. Сотни уже введены"
-            if self.number["ten"] != 0 or self.number["unit"] != 0: self.err = f"Ошибка. Неверный порядок ввода"
-        elif self.in_tens(err):
-            if self.number["ten"] != 0: self.err = f"Ошибка. Десятки уже введены"
-            if self.number["unit"] != 0: self.err = f"Ошибка. Неверный порядок ввода"
-        elif self.in_units(err):
-            if self.number["unit"] != 0: self.err = f"Ошибка. Единицы уже введены"
-            if self.number["ten"] != 0: self.err = f"Ошибка. Единицы должны быть \nв диапазоне от 0 до 9"
-        else: self.err = ""
-
     def check_numbers(self, slovo):
         self.err = ""
         words = slovo.replace("et un", "etun").replace("et onze", "etonze").split(" ")
@@ -98,25 +85,42 @@ class Translator:
 
         self.number = {"hundred" : 0, "ten" : 0, "unit" : 0}
         for i in range(len(words)):
-            # self.raise_error(words[i])
-
+            
             if self.in_hundreds(words[i]):
                 if self.number["hundred"] == 0 and self.number["ten"] == 0 and self.number["unit"] == 0:
                     if i != 0:
-                        self.err = f"Перед сотнями ничего не должно быть написано"
+                        self.err = "Перед сотнями ничего не должно быть написано"
                         return self.number_sum()
                     self.number["hundred"] = self.hundreds[words[i]]
-                
+                else:
+                    if self.number["hundred"] != 0: 
+                        self.err = "Сотни уже введены"
+                        return self.number_sum()
+                    else:
+                        self.err = "Неверный порядок ввода"
+                        return self.number_sum()
+
             elif self.in_tens(words[i]):
                 if self.number["ten"] == 0 and self.number["unit"] == 0:
                     if (self.number["hundred"] != 0 and i != 1) or (self.number["hundred"] == 0 and i != 0):
                         self.err = "Перед десятками ничего ничего не должно быть написано"
                         return self.number_sum()
                     self.number["ten"] = self.tens[words[i]]  
+                else:
+                    if self.number["ten"] != 0:
+                        self.err = "Десятки уже введены"
+                        return self.number_sum()
+                    else:
+                        self.err = "Неверный порядок ввода"
+                        return self.number_sum()
 
             elif self.in_units(words[i]):
                 if self.number["unit"] == 0:
-                    if (self.number["hundred"] == 0 and self.number["ten"] == 0 and i != 0) or (((self.number["hundred"] != 0 and self.number["ten"] == 0) or (self.number["hundred"] == 0 and self.number["ten"] != 0)) and i != 1) or ((self.number["hundred"] != 0 and self.number["ten"] != 0) and i != 2):
+                    if (self.number["hundred"] == 0 and self.number["ten"] == 0 and i != 0) or \
+                        (((self.number["hundred"] != 0 and self.number["ten"] == 0) or \
+                        (self.number["hundred"] == 0 and self.number["ten"] != 0)) and i != 1) or \
+                        ((self.number["hundred"] != 0 and self.number["ten"] != 0) and i != 2):
+                        
                         self.err = "Перед единицами ничего не должно быть написано"
                         return self.number_sum()
                     
@@ -124,15 +128,31 @@ class Translator:
                         if self.number["ten"] == 70 or self.number["ten"] == 90:
                             if not self.units[words[i]] in range (11, 20): 
                                 self.err = "После 70 и 90 допускаются только числа от 11 до 19"
-                            else: self.number["unit"] = self.units[words[i]] - 10
-                        elif self.units[words[i]] in range (0, 10):
-                            self.number["unit"] = self.units[words[i]]
-                        else: self.err =  f"Ошибка. Единицы должны быть в диапазоне от 0 до 9"
+                                return self.number_sum()
+                            else: 
+                                self.number["unit"] = self.units[words[i]] - 10
+                                print(self.units[words[i]] - 10)
+                        else:
+                            if self.units[words[i]] in range (0, 10):
+                                self.number["unit"] = self.units[words[i]]
+                            else:
+                                self.err = "Единицы должны быть в диапазоне от 0 до 9"
+                                return self.number_sum()
                     else:
                         self.number["unit"] = self.units[words[i]]
-                else: self.raise_error(words[i])        
-                            
-            else: self.raise_error(words[i])
+                    
+                    if (self.number["hundred"] != 0 or self.number["ten"]) != 0 and self.units[words[i]] == 0:
+                        self.err = "Ноль нельзя использовать в составе числа"
+                        return self.number_sum()
+
+                else: 
+                    if self.number["unit"] != 0: 
+                        self.err = "Единицы уже введены"
+                        return self.number_sum()
+                    else:
+                        self.err = "Неверный порядок ввода"
+                        return self.number_sum()
+            else: self.err = ""
 
         return self.number_sum()
     
