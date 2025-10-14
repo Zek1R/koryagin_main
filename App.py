@@ -6,7 +6,6 @@ import Translator
 class App:
     def __init__(self):
         self.root = Tk()
-        self.frm = ttk.Frame(self.root, padding=10)
         self.translator = Translator.Translator()
         self.text_var = StringVar()
         self.err_text = StringVar()
@@ -19,8 +18,8 @@ class App:
         self.root.geometry("500x600")
 
         self.entry = ttk.Entry(self.root, width=40, font=("Arial", 18), textvariable=self.text_var).pack(pady=50)
-        self.label = ttk.Label(self.root, textvariable=self.num, font=("Arial", 20)).pack(pady=70)
-        self.err_label = ttk.Label(self.root, textvariable=self.err_text, font=("Arial", 20)).pack(pady=100)
+        self.label = ttk.Label(self.root, textvariable=self.num, font=("Arial", 32)).pack(pady=50)
+        self.err_label = ttk.Label(self.root, textvariable=self.err_text, font=("Arial", 20), wraplength="200", justify="center").pack(pady=50)
         self.text_var.trace_add("write", self.callback)
         self.root.mainloop()
         
