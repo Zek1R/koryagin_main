@@ -24,7 +24,7 @@ class App:
         self.root.mainloop()
         
     def callback(self, *args):
-        self.num.set(self.translator.validation(self.text_var.get()))
+        self.num.set(self.translator.check_numbers(self.text_var.get()))
         self.err_text.set(self.translator.err)
     
 

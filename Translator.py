@@ -9,13 +9,21 @@ class Translator:
         
         self.hundreds = {"cent" : 100,
                          "deux-cent" : 200,
+                         "deuxcent" : 200,
                          "trois-cent" : 300,
+                         "troiscent" : 300,
                          "quatre-cent" : 400,
+                         "quatrecent" : 400,
                          "cinq-cent" : 500,
+                         "cinqcent" : 500,
                          "six-cent" : 600,
+                         "sixcent" : 600,
                          "sept-cent" : 700,
+                         "septcent" : 700,
                          "huit-cent" : 800,
-                         "neuf-cent" : 900}
+                         "huitcent" : 800,
+                         "neuf-cent" : 900,
+                         "neufcent" : 900}
         
         self.tens = {"vingt" : 20,
                      "trente" : 30,
@@ -23,8 +31,11 @@ class Translator:
                      "cinquante" : 50,
                      "soixante" : 60,
                      "soixante-dix" : 70,
+                     "soixantedix" : 70,
                      "quatre-vingts" : 80,
-                     "quatre-vingts-dix" : 90}
+                     "quatrevingts" : 80,
+                     "quatre-vingts-dix" : 90,
+                     "quatrevingtsdix" : 90}
         
         self.units = {"zero" : 0,
                       "un" : 1,
@@ -46,8 +57,11 @@ class Translator:
                       "quinze" : 15,
                       "seize" : 16,
                       "dix-sept" : 17,
+                      "dixsept" : 17,
                       "dix-huit" : 18,
-                      "dix-neuf" : 19}
+                      "dixhuit" : 18,
+                      "dix-neuf" : 19,
+                      "dixneuf" : 19}
                 
         self.number = {"hundred" : 0, "ten" : 0, "unit" : 0}
 
@@ -55,13 +69,17 @@ class Translator:
         
     
     def validation(self, slovo):
-        print(slovo)
+        print(f"Валидация слова: {slovo}")
         slovo = slovo.lower()
         for i in slovo:
             if i not in self.alphabet:
                 self.err = f"Неверный символ {i}"
-                return self.number_sum()
-        return self.check_numbers(slovo)
+                # return self.number_sum()
+                # print(f"split > {slovo[slovo.index(i)]}")
+                slovo = slovo.split(i)[0]
+                # print(f"Ошибка в слове: {slovo}")
+                
+        return slovo
     
 
     def in_hundreds(self, slovo):
@@ -76,12 +94,50 @@ class Translator:
         if slovo in self.units: return True  
         return False
 
+    
+    def number_concatenation(self, words):
+        
+        for i in range(len(words)):
+            n = False
+            
+            try:
+                s = words[i] + words[i+1]
+
+            except IndexError:
+                if n == False:
+                    print(f"{words} обработано - ничего не найдено")
+                    return words
+                else:
+                    self.number_concatenation(words)
+            
+            print(f"Слово = {s}")
+            if self.in_hundreds(s):
+                words[i] = s
+                words.pop(i+1)
+                n = True
+                print(f"<<<{words[i]} in hundreds>>>")
+            if self.in_tens(s):
+                words[i] = s
+                words.pop(i+1)
+                n = True
+                print(f"<<<{words[i]} in tens>>>")
+            if self.in_units(s):
+                words[i] = s
+                words.pop(i+1)
+                n = True
+                print(f"<<<{words[i]} in units>>>")
+
 
     def check_numbers(self, slovo):
         self.err = ""
-        words = slovo.replace("et un", "etun").replace("et onze", "etonze").split(" ")
+        slovo = self.validation(slovo)
+        if slovo == "": return 0
+        words = slovo.split(" ")
         words = [i.strip() for i in words if i.strip()]
-        print(words)
+        
+        words = self.number_concatenation(words)
+            
+        print(f"words: {words}")
 
         self.number = {"hundred" : 0, "ten" : 0, "unit" : 0}
         for i in range(len(words)):
