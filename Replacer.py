@@ -41,10 +41,14 @@ class Replacer():
         if indx != "":
             if position == 1:
                 self.first_index = self.validation(indx)
-            elif position == 2:
+                return self.first_index
+            if position == 2:
                 self.second_index = self.validation(indx)
+                return self.second_index
         else:
-            return 0
+            if position == 1: self.first_index = 0
+            if position == 2: self.second_index = 0
+            return ""
 
     
     def replace_word(self):

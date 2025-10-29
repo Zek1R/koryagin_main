@@ -46,7 +46,7 @@ class Translator_page(ttk.Frame):
         self.entry.grid(row=0, column=0, padx=10, rowspan=1, pady=50, sticky="n")
         
         self.reset_button = Button(self, text="×", command=lambda: self.input_text.set(""), font=("Calibri Bold", 15), width=3)
-        self.reset_button.grid(row=0, column=0, padx=10, sticky="e")
+        self.reset_button.grid(row=0, column=0, padx=0, sticky="e")
         
         self.num_lable = ttk.Label(self, textvariable=self.num, font=("Arial", 32))
         self.num_lable.grid(row=2, column=0, pady=50)
@@ -55,7 +55,7 @@ class Translator_page(ttk.Frame):
         self.err_label.grid()
 
         self.goto_next_page = Button(self, text="2-е задание", command=lambda: controller.show_page(Replacer_page), font=("Arial", 16))
-        self.goto_next_page.grid(row=9, column=0, padx=10)
+        self.goto_next_page.grid(row=6, column=0, padx=10)
 
         self.input_text.trace_add("write", self.translator_callback)
         
@@ -93,14 +93,14 @@ class Replacer_page(ttk.Frame):
 
         # self.reset_button = Button(self, text="Стереть", command=lambda: self.input_text.set(""), font=("Arial", 14), width=10).place(y=95, x=380)
         
-        self.text_label = ttk.Label(self, textvariable=self.text, font=("Arial", 20), wraplength="400", justify="center")
+        self.text_label = ttk.Label(self, textvariable=self.text, font=("Arial Bold", 20), wraplength="400", justify="center")
         self.text_label.grid(row=2, pady=30)
 
         self.err_label = ttk.Label(self, textvariable=self.err_text, font=("Arial", 20), wraplength="400", justify="center")
         self.err_label.grid(row=3)
 
         self.goto_previous_page = Button(self, text="1-е задание", command=lambda: controller.show_page(Translator_page), font=("Arial", 16))
-        self.goto_previous_page.grid(row=4, padx=10, pady=50, sticky='w')
+        self.goto_previous_page.grid(row=6, column=0, padx=10)
 
         self.input_text.trace_add("write", self.replacer_callback)
         self.first_index.trace_add("write", self.first_index_callback)
@@ -108,11 +108,11 @@ class Replacer_page(ttk.Frame):
 
 
     def reset(self):
-        self.text.set("Введите текст")
-        self.controller.replacer.reset()
         self.first_index.set("")
         self.second_index.set("")
         self.input_text.set("")
+        self.controller.replacer.reset()
+        self.text.set("Введите текст")
 
 
     def replacer_callback(self, *args):
@@ -121,17 +121,17 @@ class Replacer_page(ttk.Frame):
 
 
     def first_index_callback(self, *args):
-        
+        self.replacer_callback()
         self.first_index.set(self.controller.replacer.set_index(self.first_index.get(), 1))
-        print(self.first_index.get())
+        print(f"Первый индекс: {self.first_index.get()}")
         self.text.set(self.controller.replacer.replace_word())
         self.err_text.set(self.controller.replacer.err)
         
 
     def second_index_callback(self, *args):
-        
+        self.replacer_callback()
         self.second_index.set(self.controller.replacer.set_index(self.second_index.get(), 2))
-        print(self.second_index.get())
+        print(f"Второй индекс: {self.second_index.get()}")
         self.text.set(self.controller.replacer.replace_word())
         self.err_text.set(self.controller.replacer.err)
         
