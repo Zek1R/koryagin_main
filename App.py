@@ -40,6 +40,7 @@ class Translator_page(ttk.Frame):
 
         self.input_text = StringVar()
         self.err_text = StringVar()
+        
         self.num = StringVar(value='Вводите текст')
 
         self.entry = ttk.Entry(self, width=30, font=("Calibri Bold", 20), textvariable=self.input_text)
