@@ -25,7 +25,8 @@ class Translator:
                          "neuf-cent" : 900,
                          "neufcent" : 900}
         
-        self.tens = {"vingt" : 20,
+        self.tens = {"dix" : 10,
+                     "vingt" : 20,
                      "trente" : 30,
                      "quarante" : 40,
                      "cinquante" : 50,
@@ -39,7 +40,7 @@ class Translator:
         
         self.units = {"zero" : 0,
                       "un" : 1,
-                      "etun" : 1,
+                      "et-un" : 1,
                       "deux" : 2,
                       "trois" : 3,
                       "quatre" : 4,
@@ -48,7 +49,6 @@ class Translator:
                       "sept" : 7,
                       "huit" : 8,
                       "neuf" : 9,
-                      "dix" : 10,
                       "onze" : 11,
                       "etonze" : 11,
                       "douze" : 12,
@@ -73,7 +73,7 @@ class Translator:
         slovo = slovo.lower()
         for i in slovo:
             if i not in self.alphabet:
-                self.err = f"Неверный символ {i}"
+                self.err = f"Неверный символ {i}.\nВам нужно использовать английский алфавит."
                 # return self.number_sum()
                 # print(f"split > {slovo[slovo.index(i)]}")
                 slovo = slovo.split(i)[0]
@@ -97,33 +97,35 @@ class Translator:
     def number_concatenation(self, words):
         
         for i in range(len(words)):
-            n = False
-            
             try:
                 s = words[i] + '-' + words[i+1]
 
             except IndexError:
-                if n == False:
-                    # print(f"{words} обработано - ничего не найдено")
-                    return words
-                else:
-                    self.number_concatenation(words)
-            
+                return words
+               
             print(f"Слово = {s}")
+
             if self.in_hundreds(s):
-                words[i] = s
+                words[i] = s          
                 words.pop(i+1)
-                n = True
                 print(f"<<<{words[i]} in hundreds>>>")
+
             if self.in_tens(s):
                 words[i] = s
                 words.pop(i+1)
-                n = True
+                try:
+                    s = words[i] + '-' + words[i+1]
+                    if self.in_tens(s):
+                        words[i] = s
+                        words.pop(i+1)
+                        print("Тройное слово ебать:", words[i])
+                except IndexError:                  
+                    return words                
                 print(f"<<<{words[i]} in tens>>>")
+
             if self.in_units(s):
                 words[i] = s
                 words.pop(i+1)
-                n = True
                 print(f"<<<{words[i]} in units>>>")
 
 
@@ -147,30 +149,38 @@ class Translator:
                 if self.number["hundred"] == "" and self.number["ten"] == "" and self.number["unit"] == "":
                     if i != 0:
                         self.err = f"Перед сотнями ничего не должно быть написано."
-                        return self.number_sum()
-                    self.number["hundred"] = self.hundreds[words[i]]
+                        # return self.number_sum()
+                    else: 
+                        self.number["hundred"] = self.hundreds[words[i]]
                 else:
-                    if self.number["hundred"] != "": 
-                        self.err = f"Сотни уже введены."
-                        return self.number_sum()
+                    if self.number["ten"] == "" and self.number["unit"] == "" and self.number["hundred"] != "": 
+                        self.err = f"Сотни не могут идти подряд"
+                        # return self.number_sum()
                     else:
-                        self.err = f"Перед сотнями ничего не должно стоять."
-                        return self.number_sum()
+                        if self.in_tens(words[i-1]):
+                            self.err = f"Сотни не могут идти после чисел десятичного"
+                        else:
+                            if self.number["unit"] > 9:
+                                self.err = f"Сотни не могут идти после чисел формата 11-19."
+                            else:
+                                self.err = f"Сотни не могут идти после чисел единичного формата."                        
+                        # retur n self.number_sum()е
 
             elif self.in_tens(words[i]):
-                print(f"Проверка: {self.number["ten"] == "" } {self.number["unit"] == ""}")
                 if self.number["ten"] == "" and self.number["unit"] == "":
                     if (self.number["hundred"] != "" and i != 1) or (self.number["hundred"] == "" and i != 0):
-                        self.err = f"Перед десятками ничего ничего не должно быть написано."
-                        return self.number_sum()
-                    self.number["ten"] = self.tens[words[i]]  
-                else:
-                    if self.number["ten"] != "":
-                        self.err = f"Десятки уже введены."
-                        return self.number_sum()
-                    else:
                         self.err = f"Перед десятками ничего не должно стоять."
-                        return self.number_sum()
+                        # return self.number_sum()
+                    else:
+                        self.number["ten"] = self.tens[words[i]]  
+                else:
+                    if self.number["unit"] == "" and self.number["ten"] != "":
+                        self.err = f"Числа десятичного формата не могут идти подряд"
+                    else:
+                        if self.number["unit"] > 9:
+                            self.err = f"Числа десятичного формата не могут идти после:чисел формата 11-19"
+                        else:
+                            self.err = f"Числа десятичного формата не могут идти после: чисел единичного формата."
 
             elif self.in_units(words[i]):
                 if self.number["unit"] == "":
@@ -180,44 +190,57 @@ class Translator:
                         ((self.number["hundred"] != "" and self.number["ten"] != "") and i != 2):
                         
                         if self.units[words[i]] > 9:
-                            self.err = f"Перед числами от 10 до 19 ничего не должно быть написано."
+                            self.err = f"Перед числами формата 11-19 ничего не должно быть написано."
                         else:
                             self.err = f"Перед единицами ничего не должно быть написано."
-                        return self.number_sum()
+                        # return self.number_sum()
                     
                     if self.number["ten"] != "":
-                        if self.number["ten"] == 70 or self.number["ten"] == 90:
-                            if not self.units[words[i]] in range (11, 20): 
-                                self.err = f"После 70 и 90 допускаются только числа от 11 до 19."
-                                return self.number_sum()
-                            else: 
-                                self.number["unit"] = self.units[words[i]] - 10
-                                # print(self.units[words[i]] - 10)
+                        if self.number["ten"] == 70 or self.number["ten"] == 90 or self.number["ten"] == 10:
+                            if self.number["ten"] == 10:
+                                self.err = f"После 10 не допускается написание чисел.\nРекомендуется использовать числа формата 11-19"
+                            else:    
+                                if not self.units[words[i]] in range (11, 20): 
+                                    self.err = f"После 70 и 90 допускаются только числа формата 11-19."
+                                    # return self.number_sum()
+                                else: 
+                                    self.number["unit"] = self.units[words[i]] - 10
+                                    # print(self.units[words[i]] - 10)
                         else:
                             if self.units[words[i]] in range (0, 9):
                                 self.number["unit"] = self.units[words[i]]
                             else:
-                                self.err = f"Единицы должны быть в диапазоне от 0 до 9."
-                                return self.number_sum()
+                                self.err = f"Допускаются только числа единичного формата"
+                                # return self.number_sum()
                     else:
-                        self.number["unit"] = self.units[words[i]]
+                        if self.err == "":
+                            self.number["unit"] = self.units[words[i]]
                     
                     if (self.number["hundred"] != "" or self.number["ten"]) != "" and self.units[words[i]] == 0:
                         self.err = "Ноль нельзя использовать в составе числа"
-                        return self.number_sum()
+                        # return self.number_sum()
                 else: 
                     if self.number["unit"] != "": 
                         if self.units[words[i]] > 9:
-                            self.err = f"Числа от 10 до 19 уже введены."
+                            if self.number["unit"] > 9:
+                                self.err = f"Числа формата 11-19 не могут идти подряд."
+                            else: self.err = f"Числа формата 11-19 не могут идти после чисел единичного формата."
                         else:
-                            self.err = f"Единицы уже введены."
-                        return self.number_sum()
+                            if self.number["unit"] > 9:
+                                self.err = f"Числа единичного формата не могут идти после чисел формата 11-19."
+                            else:
+                                self.err = f"Числа единичного формата не могут идти подряд."
+                        # return self.number_sum()
                     else:
                         self.err = f"Перед единицами ничего не должно стоять."
-                        return self.number_sum()
+                        # return self.number_sum()
                     
-            else: self.err = f"Слово '{words[i]}' не распознано"
-
+            else: 
+                self.err = f"Слово '{words[i]}' не распознано."
+        print(f"Ошибки: {self.err}")
+        if self.err != "":
+            self.err = f"{self.err}\nПримерное положение слова: {i+1}"
+            return ""
         return self.number_sum()
     
     
@@ -225,8 +248,9 @@ class Translator:
         res = ""
         # print(self.number["hundred"], self.number["ten"], self.number["unit"])
         # print(self.err)
+        print(f"Сотни: {self.number["hundred"]}|Десятки: {self.number["ten"]}|Единицы: {self.number["unit"]}")
         number = [self.number[i] for i in ("hundred", "ten", "unit") if self.number[i] != ""]
-        print(f"NUMBER = {number}")
+        # print(f"NUMBER = {number}")
         if len(number) != 0:
             res = 0
             for i in number:

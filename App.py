@@ -56,7 +56,9 @@ class Translator_page(ttk.Frame):
         self.err_label.grid()
 
         self.goto_next_page = Button(self, text="2-е задание", command=lambda: controller.show_page(Replacer_page), font=("Arial", 16))
-        self.goto_next_page.grid(row=6, column=0, padx=10)
+        self.goto_next_page.place(relx=0.5, rely=0.75, anchor="center")
+        # self.goto_next_page.grid(row=6, column=0, padx=10)
+
 
         self.input_text.trace_add("write", self.translator_callback)
         
@@ -101,7 +103,8 @@ class Replacer_page(ttk.Frame):
         self.err_label.grid(row=3)
 
         self.goto_previous_page = Button(self, text="1-е задание", command=lambda: controller.show_page(Translator_page), font=("Arial", 16))
-        self.goto_previous_page.grid(row=6, column=0, padx=10)
+        self.goto_previous_page.place(relx=0.5, rely=0.97, anchor="center")
+        # self.goto_previous_page.grid(row=6, column=0, padx=10)
 
         self.input_text.trace_add("write", self.replacer_callback)
         self.first_index.trace_add("write", self.first_index_callback)
